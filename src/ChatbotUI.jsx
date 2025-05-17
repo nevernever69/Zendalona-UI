@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import remarkGfm from 'remark-gfm';
 import { ArrowUp, Loader, AlertCircle, Bot, User, Moon, Sun, ExternalLink, Info, X, MicIcon } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
+const API_URL = import.meta.env.VITE_API_URL
 
 const ChatbotUI = () => {
   const [messages, setMessages] = useState([]);
@@ -18,6 +19,9 @@ const ChatbotUI = () => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
+  // or if using Vite:
+  // const API_URL = import.meta.env.VITE_API_URL;
+  
   const renderMessageContent = (message) => (
     <ReactMarkdown
       children={message.content}
@@ -164,7 +168,7 @@ const ChatbotUI = () => {
     setError(null);
 
     try {
-      const response = await fetch('https://ai-agent-zendalona.onrender.com/chat/stream', {
+      const response = await fetch(import.meta.env.VITE_API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
