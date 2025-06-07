@@ -121,6 +121,7 @@ function Chatbot() {
 
   return (
     <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-4">
+    <div id="announcement" className="sr-only" aria-live="assertive"></div>
       <div
         ref={chatContainerRef}
         className="h-[60vh] overflow-y-auto mb-4 p-4 bg-gray-50 rounded-md"
@@ -128,6 +129,7 @@ function Chatbot() {
         aria-live="polite"
         tabIndex={0}
       >
+      <div role="list">
         {messages.map((message, index) => (
           <Message
             key={index}
@@ -136,6 +138,7 @@ function Chatbot() {
             sources={message.sources}
           />
         ))}
+        </div>
         <div ref={messagesEndRef} />
       </div>
       <form onSubmit={handleSendMessage} className="flex gap-2">

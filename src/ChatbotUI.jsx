@@ -72,9 +72,22 @@ const ChatbotUI = () => {
   }, [fontSize, highContrast, darkMode]);
 
   // Scroll to bottom when messages update
-  useEffect(() => {
-    scrollToBottom();
+ useEffect(() => {
+  scrollToBottom();
+    // Get the last message
+    const last = messages[messages.length - 1];
+    if (last && !last.isUser && last.content) {
+      const srDiv = document.getElementById('screenreader-latest');
+      if (srDiv) {
+        srDiv.textContent = ''; 
+        setTimeout(() => {
+          srDiv.textContent = last.content.slice(0, 300); 
+        }, 100); 
+      }
+    }
   }, [messages]);
+
+
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -133,6 +146,24 @@ const ChatbotUI = () => {
       document.getElementById('announcement').textContent = '';
     }, 1000);
   };
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey && e.key === '+') {
+        e.preventDefault();
+        changeFontSize('large');
+      } else if (e.ctrlKey && e.key === '-') {
+        e.preventDefault();
+        changeFontSize('small');
+      } else if (e.ctrlKey && e.key === '0') {
+        e.preventDefault();
+        changeFontSize('medium');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
 
   const toggleAccessibilityMenu = () => {
     setShowAccessibilityMenu(!showAccessibilityMenu);
@@ -145,8 +176,11 @@ const ChatbotUI = () => {
       setTimeout(() => {
         document.getElementById('announcement').textContent = '';
       }, 1000);
+
+      inputRef.current.focus(); // 🔥 important focus line
     }
   };
+
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -322,6 +356,13 @@ const ChatbotUI = () => {
     <div className={`flex flex-col h-screen w-full ${getThemeClasses()} transition-colors duration-300 ${getFontSizeClass()}`}>
       {/* Visually hidden announcement for screen readers */}
       <div id="announcement" className="sr-only" aria-live="assertive"></div>
+      <div
+        id="screenreader-latest"
+        className="sr-only"
+        aria-live="polite"
+        aria-atomic="true"
+      ></div>
+
       
       {/* Header */}
       <header className={`px-4 sm:px-6 py-4 ${getHeaderClasses()} shadow-md z-10`}>
@@ -460,11 +501,11 @@ const ChatbotUI = () => {
       )}
       
       {/* Main chat area - full width with max-width content */}
-      <main 
-        className={`flex-1 overflow-y-auto w-full transition-colors duration-300`}
-        tabIndex="0"
+      <main
+        id="chat-output"
+        role="main"
         aria-label="Chat messages"
-        role="log"
+        tabIndex="0"
       >
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6">
           {messages.length === 0 ? (
@@ -582,6 +623,7 @@ const ChatbotUI = () => {
           
           <div ref={messagesEndRef} aria-hidden="true" />
         </div>
+        <div id="screenreader-latest" className="sr-only" aria-live="polite" aria-atomic="true"></div>
       </main>
       
       {/* Message input area - full width with max-width content */}
