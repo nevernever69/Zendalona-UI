@@ -1,4 +1,4 @@
-
+import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import React, { useState, useEffect, useRef } from 'react';
 import remarkGfm from 'remark-gfm';
@@ -374,7 +374,17 @@ const ChatbotUI = () => {
               <p tabIndex="0" className="text-sm opacity-90">Ask me anything about our accessibility solutions</p>
             </div>
           </div>
-          
+
+              {/* Admin Panel Button */}
+              <Link to="/admin">
+                <button
+                  className="mt-2 bg-white text-blue-600 px-3 py-1 rounded text-sm font-medium hover:bg-blue-100"
+                  aria-label="Go to admin panel"
+                >
+                  Admin Panel
+                </button>
+              </Link>
+
           <div className="flex items-center gap-2">
             {/* Accessibility Menu Button */}
             <button 
@@ -387,7 +397,8 @@ const ChatbotUI = () => {
               aria-label="Accessibility options"
               aria-expanded={showAccessibilityMenu}
               aria-controls="accessibility-menu"
-            >
+              >
+                          
               <Info size={20} />
             </button>
             
