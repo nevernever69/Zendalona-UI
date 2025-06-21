@@ -1,11 +1,20 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import SystemStatus from '../components/Admin/SystemStatus';
 import IndexManager from '../components/Admin/IndexManager';
 import SessionManager from '../components/Admin/SessionManager';
 
 function AdminPage() {
   const [selectedTool, setSelectedTool] = useState(null);
+  const navigate = useNavigate();
+
+  // 🔐 Protect this page by checking for token
+  useEffect(() => {
+    const token = localStorage.getItem('admin_token');
+    if (!token) {
+      navigate('/admin-login');
+    }
+  }, [navigate]);
 
   const renderSelectedTool = () => {
     switch (selectedTool) {
@@ -26,7 +35,7 @@ function AdminPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* 🔷 Top Navbar */}
+      {/* 🔷 Blue Top Navbar */}
       <nav className="bg-blue-700 text-white px-6 py-4 flex justify-between items-center shadow">
         <h1 className="text-xl font-bold">Zendalona Admin Panel</h1>
         <Link to="/">
@@ -36,7 +45,7 @@ function AdminPage() {
         </Link>
       </nav>
 
-      {/* Tool Buttons */}
+      {/* 🔘 Tool Buttons */}
       <div className="max-w-5xl mx-auto px-6 mt-6">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <button
@@ -49,6 +58,7 @@ function AdminPage() {
           >
             🩺 System Health & Info
           </button>
+
           <button
             onClick={() => setSelectedTool('index')}
             className={`rounded-lg px-4 py-3 font-medium shadow transition ${
@@ -59,6 +69,7 @@ function AdminPage() {
           >
             📡 Indexing Tools
           </button>
+
           <button
             onClick={() => setSelectedTool('sessions')}
             className={`rounded-lg px-4 py-3 font-medium shadow transition ${
@@ -71,7 +82,7 @@ function AdminPage() {
           </button>
         </div>
 
-        {/* Tool Card */}
+        {/* Tool Content */}
         <div className="bg-white rounded-xl shadow p-6">{renderSelectedTool()}</div>
       </div>
     </div>
