@@ -141,8 +141,8 @@ const ChatbotUI = () => {
         feedback: feedbackType,
         additional_comments: comments,
       };
-
-      const response = await fetch('http://127.0.0.1:8000/chat/feedback', {
+127
+      const response = await fetch('https://chatapi.zendalona.com/chat/feedback', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -241,7 +241,7 @@ const ChatbotUI = () => {
     setError(null);
   
     try {
-      const response = await fetch('http://127.0.0.1:8000/chat/stream', {
+      const response = await fetch('https://chatapi.zendalona.com/chat/stream', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -42,7 +42,7 @@ const AdminPanel = () => {
   const fetchCollections = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('http://127.0.0.1:8000/indexing/collections');
+      const response = await fetch('https://chatapi.zendalona.com/indexing/collections');
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       const data = await response.json();
       setCollections(data.collections);
@@ -55,7 +55,7 @@ const AdminPanel = () => {
 
   const fetchSystemInfo = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/system/info');
+      const response = await fetch('https://chatapi.zendalona.com/system/info');
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       const data = await response.json();
       setSystemInfo(data);
@@ -66,7 +66,7 @@ const AdminPanel = () => {
 
   const fetchHealthStatus = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/system/health');
+      const response = await fetch('https://chatapi.zendalona.com/system/health');
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       const data = await response.json();
       setHealthStatus(data);
@@ -78,13 +78,13 @@ const AdminPanel = () => {
   const fetchCacheEntries = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('http://127.0.0.1:8000/indexing/cache');
+      const response = await fetch('https://chatapi.zendalona.com/indexing/cache');
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       const data = await response.json();
       const entries = data.entries || data.questions || [];
       if (entries.length) {
         setCacheEntries(entries);
-      } else {
+      } else {.zendalona.com
         setError('No cache entries found in response');
       }
       setIsLoading(false);
@@ -98,7 +98,7 @@ const AdminPanel = () => {
   const fetchDocuments = async (collectionName) => {
     try {
       setIsLoading(true);
-      const response = await fetch(`http://127.0.0.1:8000/indexing/collections/${collectionName}`);
+      const response = await fetch(`https://chatapi.zendalona.com/indexing/collections/${collectionName}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       const data = await response.json();
       if (data.documents) {
@@ -123,7 +123,7 @@ const AdminPanel = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch(`http://127.0.0.1:8000/indexing/cache/${entryId}`, {
+      const response = await fetch(`https://chatapi.zendalona.com/indexing/cache/${entryId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -143,7 +143,7 @@ const AdminPanel = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch(`http://127.0.0.1:8000/indexing/collections/${collectionName}`, {
+      const response = await fetch(`https://chatapi.zendalona.com/indexing/collections/${collectionName}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -179,7 +179,7 @@ const AdminPanel = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch(`http://127.0.0.1:8000/indexing/collections/${collectionName}/${documentId}`, {
+      const response = await fetch(`https://chatapi.zendalona.com/indexing/collections/${collectionName}/${documentId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -200,7 +200,7 @@ const AdminPanel = () => {
     setError(null);
     setResponseMessage('');
     try {
-      const response = await fetch('http://127.0.0.1:8000/indexing/crawl', {
+      const response = await fetch('https://chatapi.zendalona.com/indexing/crawl', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: crawlUrl, max_pages: maxPages, depth }),
@@ -232,7 +232,7 @@ const AdminPanel = () => {
     try {
       const formData = new FormData();
       formData.append('file', pdfFile);
-      const response = await fetch('http://127.0.0.1:8000/indexing/upload-pdf', {
+      const response = await fetch('https://chatapi.zendalona.com/indexing/upload-pdf', {
         method: 'POST',
         body: formData,
       });
@@ -259,7 +259,7 @@ const AdminPanel = () => {
     setError(null);
     setResponseMessage('');
     try {
-      const response = await fetch('http://127.0.0.1:8000/cache/add', {
+      const response = await fetch('https://chatapi.zendalona.com/cache/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
