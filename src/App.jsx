@@ -1,22 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ChatbotUI from './ChatbotUI';
 import AdminPanel from './components/AdminPanel';
+import Layout from './pages/Layout';
+import './App.css';
 
 function App() {
-  const [isAdmin, setIsAdmin] = useState(false);
-
   return (
-    <div className="w-full h-screen">
-      <div className="p-4">
-        <button
-          onClick={() => setIsAdmin(!isAdmin)}
-          className="mb-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        >
-          {isAdmin ? 'Switch to Chatbot' : 'Switch to Admin Panel'}
-        </button>
-        {isAdmin ? <AdminPanel /> : <ChatbotUI />}
-      </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<ChatbotUI />} />
+          <Route path="admin" element={<AdminPanel />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 

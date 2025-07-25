@@ -1,0 +1,31 @@
+.suggested-questions {
+  padding: 1rem;
+  border-top: 1px solid #ccc;
+}
+
+.suggested-questions-header {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.suggested-questions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.suggested-question-button {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.suggested-question-button:hover {
+  background-color: #e0e0e0;
+}

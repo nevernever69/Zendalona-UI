@@ -1,8 +1,11 @@
-import ReactMarkdown from 'react-markdown';
 import React, { useState, useEffect, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { ArrowUp, Loader, AlertCircle, Bot, User, Moon, Sun, ExternalLink, Info, X, MicIcon, ThumbsUp, ThumbsDown } from 'lucide-react';
+import rehypeRaw from 'rehype-raw';
+import { ArrowUp, Loader, AlertCircle, Bot, User, Moon, Sun, ExternalLink, Info, X, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
+import SuggestedQuestions from './components/SuggestedQuestions';
+import './components/SuggestedQuestions.css';
 
 const ChatbotUI = () => {
   const [messages, setMessages] = useState([]);
@@ -121,6 +124,11 @@ const ChatbotUI = () => {
     }
   };
 
+  const handleQuestionSelect = (question) => {
+    setInput(question);
+    inputRef.current.focus();
+  };
+
   const submitFeedback = async (messageId, feedbackType, comments = null) => {
     const message = messages.find(msg => msg.id === messageId);
     if (!message || message.isUser) return;
@@ -178,6 +186,42 @@ const ChatbotUI = () => {
     submitFeedback(feedbackMessageId, 'negative', feedbackComments);
     setShowFeedbackModal(false);
     setFeedbackComments('');
+  };
+
+  // Universal markdown formatter to fix common formatting issues
+  const cleanMarkdownFormatting = (content) => {
+    let cleanedContent = content
+      // Fix malformed bold syntax - remove extra asterisks
+      .replace(/\*{3,}/g, '**')
+      // Fix list items with malformed bold formatting
+      .replace(/\*\s*\*{2,}([^*:]+):\*{2,}/g, '* **$1:**')
+      // Fix cases where bold markers are separated incorrectly
+      .replace(/\*\s*\*([^*:]+):\*/g, '* **$1:**')
+      // Clean up spacing around colons in list items
+      .replace(/(\*\s*\*\*[^:]+)\s*:\s*\*+/g, '$1:**')
+      // Remove trailing asterisks at end of lines
+      .replace(/\s+\*+\s*$/gm, '')
+      // Fix cases where asterisks appear mid-sentence incorrectly
+      .replace(/([a-zA-Z])\*+([a-zA-Z])/g, '$1$2')
+      // Ensure proper spacing after list item bold text
+      .replace(/(\*\s*\*\*[^*:]+:\*\*)\s*/g, '$1 ')
+      // Clean up multiple consecutive spaces
+      .replace(/\s{2,}/g, ' ')
+      // Clean up multiple newlines (keep max 2 for paragraph breaks)
+      .replace(/\n{3,}/g, '\n\n')
+      // Fix orphaned asterisks at start of lines
+      .replace(/^\*+\s*$/gm, '')
+      // Remove empty list items
+      .replace(/^\*\s*$/gm, '')
+      // Ensure list items start properly
+      .replace(/^\s*\*\s*\*\*/gm, '* **')
+      // Fix bold text that spans across line breaks incorrectly
+      .replace(/\*\*([^*\n]+)\n([^*\n]+)\*\*/g, '**$1 $2**')
+      // Clean up any remaining malformed bold syntax
+      .replace(/\*\*\s*\*\*/g, '')
+      .trim();
+
+    return cleanedContent;
   };
 
   const sendMessage = async (e) => {
@@ -343,16 +387,37 @@ const ChatbotUI = () => {
 
   const renderMessageContent = (message) => (
     <ReactMarkdown
-      children={message.content}
+      children={cleanMarkdownFormatting(message.content)}
       remarkPlugins={[remarkGfm]}
+      rehypePlugins={[rehypeRaw]}
       components={{
-        h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mb-2" {...props} />,
-        h2: ({ node, ...props }) => <h2 className="text-xl font-semibold mb-2" {...props} />,
-        h3: ({ node, ...props }) => <h3 className="text-lg font-semibold mb-2" {...props} />,
-        p: ({ node, ...props }) => <p className="mb-2" {...props} />,
+        h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mb-4 mt-4" {...props} />,
+        h2: ({ node, ...props }) => <h2 className="text-xl font-semibold mb-3 mt-3" {...props} />,
+        h3: ({ node, ...props }) => <h3 className="text-lg font-semibold mb-2 mt-2" {...props} />,
+        h4: ({ node, ...props }) => <h4 className="text-base font-semibold mb-2 mt-2" {...props} />,
+        h5: ({ node, ...props }) => <h5 className="text-sm font-semibold mb-1 mt-1" {...props} />,
+        h6: ({ node, ...props }) => <h6 className="text-xs font-semibold mb-1 mt-1" {...props} />,
+        p: ({ node, ...props }) => <p className="mb-4" {...props} />,
         strong: ({ node, ...props }) => <strong className="font-bold" {...props} />,
-        li: ({ node, ...props }) => <li className="list-disc ml-5" {...props} />,
-        ul: ({ node, ...props }) => <ul className="mb-2" {...props} />,
+        em: ({ node, ...props }) => <em className="italic" {...props} />,
+        ul: ({ node, ...props }) => <ul className="list-disc list-inside mb-4 pl-4" {...props} />,
+        ol: ({ node, ...props }) => <ol className="list-decimal list-inside mb-4 pl-4" {...props} />,
+        li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+        blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-gray-500 pl-4 italic my-4" {...props} />,
+        code: ({ node, inline, className, children, ...props }) => {
+          const match = /language-(\w+)/.exec(className || '');
+          return !inline ? (
+            <pre className="bg-gray-800 text-white p-4 rounded-md my-4 overflow-x-auto">
+              <code className={`language-${match ? match[1] : 'plaintext'}`} {...props}>
+                {children}
+              </code>
+            </pre>
+          ) : (
+            <code className="bg-gray-700 text-white px-1 rounded-md" {...props}>
+              {children}
+            </code>
+          );
+        },
         a: ({ node, ...props }) => <a className="text-blue-500 underline" target="_blank" rel="noopener noreferrer" {...props} />,
       }}
     />
@@ -360,7 +425,10 @@ const ChatbotUI = () => {
 
   return (
     <div className={`flex flex-col h-screen w-full ${getThemeClasses()} transition-colors duration-300 ${getFontSizeClass()}`}>
-      <div id="announcement" className="sr-only" aria-live="assertive"></div>
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-blue-600 focus:text-white">
+      Skip to main content
+    </a>
+    <div id="announcement" className="sr-only" aria-live="assertive"></div>
 
       <header className={`px-4 sm:px-6 py-4 ${getHeaderClasses()} shadow-md z-10`}>
         <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -572,30 +640,35 @@ const ChatbotUI = () => {
         </div>
       )}
 
+
       <main
+        id="main-content"
         className={`flex-1 overflow-y-auto w-full transition-colors duration-300`}
-        tabIndex="0"
+        tabIndex="-1"
         aria-label="Chat messages"
         role="log"
       >
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6">
           {messages.length === 0 ? (
-            <div
-              className={`flex flex-col items-center justify-center h-64 text-center p-6 rounded-xl ${
-                highContrast
-                  ? darkMode ? 'bg-gray-800 text-white border-2 border-white' : 'bg-white text-black border-2 border-black'
-                  : darkMode ? 'bg-gray-800 text-gray-300' : 'bg-blue-50 text-gray-600'
-              }`}
-              tabIndex="0"
-            >
-              <Bot size={48} className={highContrast ? 'text-white' : darkMode ? 'text-gray-500' : 'text-blue-400'} aria-hidden="true" />
-              <p className="text-lg font-medium">How can I help you</p>
-              <p className="mt-2">Send a message to start chatting!</p>
+            <div>
+              <div
+                className={`flex flex-col items-center justify-center h-64 text-center p-6 rounded-xl ${
+                  highContrast
+                    ? darkMode ? 'bg-gray-800 text-white border-2 border-white' : 'bg-white text-black border-2 border-black'
+                    : darkMode ? 'bg-gray-800 text-gray-300' : 'bg-blue-50 text-gray-600'
+                }`}
+                tabIndex="0"
+              >
+                <Bot size={48} className={highContrast ? 'text-white' : darkMode ? 'text-gray-500' : 'text-blue-400'} aria-hidden="true" />
+                <p className="text-lg font-medium">How can I help you</p>
+                <p className="mt-2">Send a message to start chatting!</p>
+              </div>
+              <SuggestedQuestions onQuestionSelect={handleQuestionSelect} />
             </div>
           ) : (
-            <div className="space-y-6">
+            <ul className="space-y-6">
               {messages.map((message) => (
-                <div key={message.id} className="animate-fade-in">
+                <li key={message.id} className="animate-fade-in" role="listitem">
                   <div className="flex items-start gap-3 max-w-full">
                     <div
                       className={`flex-shrink-0 mt-1 p-2 rounded-full ${
@@ -624,7 +697,7 @@ const ChatbotUI = () => {
                         </span>
                       </div>
                       <div
-                        className={`rounded-lg p-3 whitespace-pre-wrap leading-relaxed ${getMessageClasses(message.isUser)}`}
+                        className={`rounded-lg p-3 leading-relaxed ${getMessageClasses(message.isUser)}`}
                         aria-labelledby={`sender-${message.id}`}
                       >
                         {message.content ? (
@@ -708,9 +781,9 @@ const ChatbotUI = () => {
                       )}
                     </div>
                   </div>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
           {error && (
             <div
