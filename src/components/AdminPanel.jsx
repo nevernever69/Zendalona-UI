@@ -84,7 +84,7 @@ const AdminPanel = () => {
       const entries = data.entries || data.questions || [];
       if (entries.length) {
         setCacheEntries(entries);
-      } else {.zendalona.com
+      } else {
         setError('No cache entries found in response');
       }
       setIsLoading(false);
