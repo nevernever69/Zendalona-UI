@@ -74,12 +74,13 @@ const ChatbotUI = () => {
     return sources.map(source => source.trim()).filter(Boolean);
   };
 
-  const addMessage = (content, isUser = false, sources = []) => {
+  const addMessage = (content, isUser = false, sources = [], suggestions = []) => {
     const newMessage = {
       id: Date.now().toString(),
       content,
       isUser,
       sources: formatSources(sources),
+      suggestions,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       feedback: null, // Track feedback status
     };
@@ -261,6 +262,7 @@ const ChatbotUI = () => {
       const decoder = new TextDecoder();
       let botMessage = '';
       let sources = [];
+      let suggestions = [];
   
       addMessage('', false);
   
@@ -297,6 +299,15 @@ const ChatbotUI = () => {
               sources = formatSources(sources);
               if (sources.length > 0) {
                 document.getElementById('announcement').textContent = `${sources.length} sources available`;
+              }
+            } else if (eventType === 'suggestions') {
+              suggestions = data.split('|').filter(Boolean); // Use a different delimiter
+              if (suggestions.length > 0) {
+                setMessages(prev => {
+                  const updated = [...prev];
+                  updated[updated.length - 1].suggestions = suggestions;
+                  return updated;
+                });
               }
             } else if (eventType === 'metadata') {
               console.log('Metadata data:', data); // Log metadata for debugging
@@ -404,14 +415,13 @@ const ChatbotUI = () => {
         ol: ({ node, ...props }) => <ol className="list-decimal list-inside mb-4 pl-4" {...props} />,
         li: ({ node, ...props }) => <li className="mb-1" {...props} />,
         blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-gray-500 pl-4 italic my-4" {...props} />,
+        pre: ({ node, ...props }) => <pre className="bg-gray-800 text-white p-4 rounded-md my-4 overflow-x-auto" {...props} />,
         code: ({ node, inline, className, children, ...props }) => {
           const match = /language-(\w+)/.exec(className || '');
           return !inline ? (
-            <pre className="bg-gray-800 text-white p-4 rounded-md my-4 overflow-x-auto">
               <code className={`language-${match ? match[1] : 'plaintext'}`} {...props}>
                 {children}
               </code>
-            </pre>
           ) : (
             <code className="bg-gray-700 text-white px-1 rounded-md" {...props}>
               {children}
