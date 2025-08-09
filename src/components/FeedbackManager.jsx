@@ -30,7 +30,11 @@ const FeedbackManager = () => {
   };
 
   const handleDelete = async (itemId) => {
-    if (!window.confirm('Are you sure you want to delete this item?')) return;
+    // Find the entry for better messaging
+    const entry = feedbackEntries.find(e => e._id === itemId);
+    const question = entry ? entry.question : 'the selected item';
+    
+    if (!window.confirm(`Are you sure you want to delete feedback for "${question}"?`)) return;
     try {
       setIsLoading(true);
       const response = await fetch(`http://127.0.0.1:8000/feedback/${itemId}`, {
@@ -38,7 +42,11 @@ const FeedbackManager = () => {
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       const data = await response.json();
-      setResponseMessage(data.message);
+      setResponseMessage(`Successfully deleted feedback for "${question}"`);
+      // Clear the response message after 3 seconds
+      setTimeout(() => {
+        setResponseMessage('');
+      }, 3000);
       fetchFeedbackEntries();
       setIsLoading(false);
     } catch (err) {
@@ -48,7 +56,11 @@ const FeedbackManager = () => {
   };
 
   const handleUpdateAndMove = async (itemId) => {
-    if (!window.confirm('Are you sure you want to update and move this item to the permanent cache?')) return;
+    // Find the entry for better messaging
+    const entry = feedbackEntries.find(e => e._id === itemId);
+    const question = entry ? entry.question : 'the selected item';
+    
+    if (!window.confirm(`Are you sure you want to update and move feedback for "${question}" to the permanent cache?`)) return;
     try {
       setIsLoading(true);
       const response = await fetch(`http://127.0.0.1:8000/feedback/move-to-cache/${itemId}`,
@@ -60,7 +72,11 @@ const FeedbackManager = () => {
       );
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       const data = await response.json();
-      setResponseMessage(data.message);
+      setResponseMessage(`Successfully updated and moved feedback for "${question}" to permanent cache`);
+      // Clear the response message after 3 seconds
+      setTimeout(() => {
+        setResponseMessage('');
+      }, 3000);
       setEditMode(null);
       fetchFeedbackEntries();
       setIsLoading(false);

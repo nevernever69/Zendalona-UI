@@ -30,7 +30,11 @@ const TempCacheManager = () => {
   };
 
   const handleDelete = async (itemId) => {
-    if (!window.confirm('Are you sure you want to delete this item?')) return;
+    // Get the entry for better messaging
+    const entry = tempCacheEntries.find(e => e._id === itemId);
+    const question = entry ? entry.question : 'the selected item';
+    
+    if (!window.confirm(`Are you sure you want to delete "${question}"?`)) return;
     try {
       setIsLoading(true);
       const response = await fetch(`http://127.0.0.1:8000/temp-cache/${itemId}`, {
@@ -38,7 +42,11 @@ const TempCacheManager = () => {
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       const data = await response.json();
-      setResponseMessage(data.message);
+      setResponseMessage(`Successfully deleted "${question}"`);
+      // Clear the response message after 3 seconds
+      setTimeout(() => {
+        setResponseMessage('');
+      }, 3000);
       fetchTempCacheEntries();
       setIsLoading(false);
     } catch (err) {
@@ -48,7 +56,11 @@ const TempCacheManager = () => {
   };
 
   const handleMoveToCache = async (itemId) => {
-    if (!window.confirm('Are you sure you want to move this item to the permanent cache?')) return;
+    // Get the entry for better messaging
+    const entry = tempCacheEntries.find(e => e._id === itemId);
+    const question = entry ? entry.question : 'the selected item';
+    
+    if (!window.confirm(`Are you sure you want to move "${question}" to the permanent cache?`)) return;
     try {
       setIsLoading(true);
       const response = await fetch(`http://127.0.0.1:8000/temp-cache/move/${itemId}`, {
@@ -56,7 +68,11 @@ const TempCacheManager = () => {
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       const data = await response.json();
-      setResponseMessage(data.message);
+      setResponseMessage(`Successfully moved "${question}" to permanent cache`);
+      // Clear the response message after 3 seconds
+      setTimeout(() => {
+        setResponseMessage('');
+      }, 3000);
       fetchTempCacheEntries();
       setIsLoading(false);
     } catch (err) {
@@ -66,7 +82,11 @@ const TempCacheManager = () => {
   };
 
   const handleUpdate = async (itemId) => {
-    if (!window.confirm('Are you sure you want to update this item?')) return;
+    // Get the entry for better messaging
+    const entry = tempCacheEntries.find(e => e._id === itemId);
+    const question = entry ? entry.question : 'the selected item';
+    
+    if (!window.confirm(`Are you sure you want to update "${question}"?`)) return;
     try {
       setIsLoading(true);
       const response = await fetch(`http://127.0.0.1:8000/temp-cache/${itemId}`,
@@ -78,7 +98,11 @@ const TempCacheManager = () => {
       );
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       const data = await response.json();
-      setResponseMessage(data.message);
+      setResponseMessage(`Successfully updated "${question}"`);
+      // Clear the response message after 3 seconds
+      setTimeout(() => {
+        setResponseMessage('');
+      }, 3000);
       setEditMode(null);
       fetchTempCacheEntries();
       setIsLoading(false);
@@ -89,7 +113,11 @@ const TempCacheManager = () => {
   };
 
   const handleUpdateAndMove = async (itemId) => {
-    if (!window.confirm('Are you sure you want to update and move this item to the permanent cache?')) return;
+    // Get the entry for better messaging
+    const entry = tempCacheEntries.find(e => e._id === itemId);
+    const question = entry ? entry.question : 'the selected item';
+    
+    if (!window.confirm(`Are you sure you want to update and move "${question}" to the permanent cache?`)) return;
     try {
       setIsLoading(true);
       const response = await fetch(`http://127.0.0.1:8000/temp-cache/update-and-move/${itemId}`, {
@@ -99,7 +127,11 @@ const TempCacheManager = () => {
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       const data = await response.json();
-      setResponseMessage(data.message);
+      setResponseMessage(`Successfully updated and moved "${question}" to permanent cache`);
+      // Clear the response message after 3 seconds
+      setTimeout(() => {
+        setResponseMessage('');
+      }, 3000);
       setEditMode(null);
       fetchTempCacheEntries();
       setIsLoading(false);

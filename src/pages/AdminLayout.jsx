@@ -57,8 +57,15 @@ const AdminLayout = () => {
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       <aside className="w-64 flex-shrink-0 bg-white dark:bg-gray-800 border-r dark:border-gray-700">
         <div className="h-full flex flex-col">
-          <div className="px-6 py-4 border-b dark:border-gray-700">
+          <div className="px-6 py-4 border-b dark:border-gray-700 flex justify-between items-center">
             <h2 className="text-2xl font-semibold text-gray-800 dark:text-white">Admin Panel</h2>
+            <Link 
+              to="/" 
+              className="text-sm bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 transition-colors"
+              title="Back to main app"
+            >
+              Home
+            </Link>
           </div>
           <nav className="flex-grow p-4">
             <ul>

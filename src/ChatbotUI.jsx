@@ -2,12 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
-import { ArrowUp, Loader, AlertCircle, Bot, User, Moon, Sun, ExternalLink, Info, X, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { ArrowUp, Loader, AlertCircle, Bot, User, ExternalLink, X, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import SuggestedQuestions from './components/SuggestedQuestions';
-import './components/SuggestedQuestions.css';
 import { useAuth } from './contexts/AuthContext';
-import LoginButton from './components/LoginButton';
 
 const ChatbotUI = () => {
   const { currentUser } = useAuth();
@@ -16,41 +14,17 @@ const ChatbotUI = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [sessionId, setSessionId] = useState('');
-  const [darkMode, setDarkMode] = useState(false);
-  const [fontSize, setFontSize] = useState('medium');
-  const [showAccessibilityMenu, setShowAccessibilityMenu] = useState(false);
-  const [highContrast, setHighContrast] = useState(false);
-  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-  const [feedbackMessageId, setFeedbackMessageId] = useState(null);
-  const [feedbackComments, setFeedbackComments] = useState('');
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const feedbackInputRef = useRef(null);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [feedbackMessageId, setFeedbackMessageId] = useState(null);
+  const [feedbackComments, setFeedbackComments] = useState('');
 
-  // Initialize session ID and preferences
+  // Initialize session ID
   useEffect(() => {
     setSessionId(uuidv4());
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setDarkMode(true);
-    }
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e) => setDarkMode(e.matches);
-    mediaQuery.addEventListener('change', handleChange);
-    const savedFontSize = localStorage.getItem('chatbot-font-size');
-    const savedHighContrast = localStorage.getItem('chatbot-high-contrast') === 'true';
-    const savedDarkMode = localStorage.getItem('chatbot-dark-mode') === 'true';
-    if (savedFontSize) setFontSize(savedFontSize);
-    if (savedHighContrast !== null) setHighContrast(savedHighContrast);
-    if (savedDarkMode !== null) setDarkMode(savedDarkMode);
-    return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
-
-  // Save accessibility preferences
-  useEffect(() => {
-    localStorage.setItem('chatbot-font-size', fontSize);
-    localStorage.setItem('chatbot-high-contrast', highContrast.toString());
-    localStorage.setItem('chatbot-dark-mode', darkMode.toString());
-  }, [fontSize, highContrast, darkMode]);
 
   // Scroll to bottom when messages update
   useEffect(() => {
@@ -88,34 +62,6 @@ const ChatbotUI = () => {
       feedback: null, // Track feedback status
     };
     setMessages(prev => [...prev, newMessage]);
-  };
-
-  const toggleTheme = () => {
-    setDarkMode(!darkMode);
-    document.getElementById('announcement').textContent = `${darkMode ? 'Light' : 'Dark'} mode activated`;
-    setTimeout(() => {
-      document.getElementById('announcement').textContent = '';
-    }, 1000);
-  };
-
-  const toggleHighContrast = () => {
-    setHighContrast(!highContrast);
-    document.getElementById('announcement').textContent = `High contrast mode ${highContrast ? 'deactivated' : 'activated'}`;
-    setTimeout(() => {
-      document.getElementById('announcement').textContent = '';
-    }, 1000);
-  };
-
-  const changeFontSize = (size) => {
-    setFontSize(size);
-    document.getElementById('announcement').textContent = `Font size set to ${size}`;
-    setTimeout(() => {
-      document.getElementById('announcement').textContent = '';
-    }, 1000);
-  };
-
-  const toggleAccessibilityMenu = () => {
-    setShowAccessibilityMenu(!showAccessibilityMenu);
   };
 
   const clearChat = () => {
@@ -210,7 +156,6 @@ const ChatbotUI = () => {
       .replace(/\*\s*\*{2,}([^*:]+):\*{2,}/g, '* **$1:**')
       // Fix cases where bold markers are separated incorrectly
       .replace(/\*\s*\*([^*:]+):\*/g, '* **$1:**')
-      // Clean up spacing around colons in list items
       // Clean up spacing around colons in list items
       .replace(/(\*\s*\*\*[^:]+):\*\*\s*/g, '$1 ')
       // Remove trailing asterisks at end of lines
@@ -382,40 +327,6 @@ const ChatbotUI = () => {
     }
   };
 
-  const getFontSizeClass = () => {
-    switch (fontSize) {
-      case 'small': return 'text-sm';
-      case 'large': return 'text-lg';
-      case 'xlarge': return 'text-xl';
-      default: return 'text-base';
-    }
-  };
-
-  const getThemeClasses = () => {
-    if (highContrast) {
-      return darkMode ? 'bg-black text-white' : 'bg-white text-black';
-    }
-    return darkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-50 text-gray-800';
-  };
-
-  const getHeaderClasses = () => {
-    if (highContrast) {
-      return darkMode ? 'bg-blue-900 text-white border-yellow-400 border-b-2' : 'bg-blue-700 text-white border-yellow-400 border-b-2';
-    }
-    return darkMode ? 'bg-gray-800 text-white' : 'bg-blue-600 text-white';
-  };
-
-  const getMessageClasses = (isUser) => {
-    if (highContrast) {
-      return isUser
-        ? darkMode ? 'bg-blue-900 text-white border-2 border-white' : 'bg-blue-700 text-white border-2 border-black'
-        : darkMode ? 'bg-black text-white border-2 border-white' : 'bg-white text-black border-2 border-black';
-    }
-    return isUser
-      ? darkMode ? 'bg-blue-800 text-blue-50' : 'bg-blue-600 text-white'
-      : darkMode ? 'bg-gray-800 text-gray-100' : 'bg-white text-gray-800 border border-gray-200';
-  };
-
   const renderMessageContent = (message) => (
     <ReactMarkdown
       children={cleanMarkdownFormatting(message.content)}
@@ -454,154 +365,16 @@ const ChatbotUI = () => {
   );
 
   return (
-    <div className={`flex flex-col h-screen w-full ${getThemeClasses()} transition-colors duration-300 ${getFontSizeClass()}`}>
-      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-blue-600 focus:text-white">
-      Skip to main content
-    </a>
-    <div id="announcement" className="sr-only" aria-live="assertive"></div>
-
-      <header className={`px-4 sm:px-6 py-4 ${getHeaderClasses()} shadow-md z-10`}>
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-            <Bot size={28} className="text-white" aria-hidden="true" />
-            <div>
-              <h1 tabIndex="0" className="text-xl font-semibold">Zendalona Assistant</h1>
-              <p tabIndex="0" className="text-sm opacity-90">Ask me anything about our accessibility solutions</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <LoginButton />
-            <button
-              onClick={toggleAccessibilityMenu}
-              className={`p-2 rounded-full transition-colors ${
-                highContrast
-                  ? darkMode ? 'bg-yellow-600 text-white hover:bg-yellow-500' : 'bg-blue-800 text-white hover:bg-blue-700'
-                  : darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-blue-500 hover:bg-blue-400'
-              }`}
-              aria-label="Accessibility options"
-              aria-expanded={showAccessibilityMenu}
-              aria-controls="accessibility-menu"
-            >
-              <Info size={20} />
-            </button>
-            <button
-              onClick={toggleTheme}
-              className={`p-2 rounded-full transition-colors ${
-                highContrast
-                  ? darkMode ? 'bg-yellow-600 text-white hover:bg-yellow-500' : 'bg-blue-800 text-white hover:bg-blue-700'
-                  : darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-blue-500 hover:bg-blue-400'
-              }`}
-              aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-            >
-              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {showAccessibilityMenu && (
-        <div
-          id="accessibility-menu"
-          className={`border-b ${
-            highContrast
-              ? darkMode ? 'bg-gray-800 text-white border-yellow-400' : 'bg-white text-black border-blue-700'
-              : darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-          } transition-all duration-300`}
-          role="region"
-          aria-label="Accessibility controls"
-        >
-          <div className="max-w-7xl mx-auto py-4 px-6">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-lg font-semibold">Accessibility Options</h2>
-              <button
-                onClick={toggleAccessibilityMenu}
-                aria-label="Close accessibility menu"
-                className={`p-1 rounded-full ${
-                  highContrast
-                    ? darkMode ? 'bg-yellow-600 text-white hover:bg-yellow-500' : 'bg-blue-700 text-white hover:bg-blue-600'
-                    : darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'
-                }`}
-              >
-                <X size={16} />
-              </button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label id="font-size-label" className="block font-medium">Font Size</label>
-                <div className="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="font-size-label">
-                  {['small', 'medium', 'large', 'xlarge'].map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => changeFontSize(size)}
-                      aria-pressed={fontSize === size}
-                      className={`px-3 py-1 rounded-md transition-colors ${
-                        fontSize === size
-                          ? highContrast
-                            ? darkMode ? 'bg-yellow-600 text-white' : 'bg-blue-700 text-white'
-                            : darkMode ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'
-                          : highContrast
-                            ? darkMode ? 'bg-gray-700 text-white border border-white' : 'bg-white text-black border border-black'
-                            : darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-700'
-                      }`}
-                    >
-                      {size.charAt(0).toUpperCase() + size.slice(1)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label id="contrast-label" className="block font-medium">Display Options</label>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={toggleHighContrast}
-                    aria-pressed={highContrast}
-                    className={`px-3 py-1 rounded-md transition-colors ${
-                      highContrast
-                        ? darkMode ? 'bg-yellow-600 text-white' : 'bg-blue-700 text-white'
-                        : darkMode ? 'bg-gray-700 text-gray-200 border border-gray-600' : 'bg-gray-200 text-gray-700 border border-gray-300'
-                    }`}
-                  >
-                    High Contrast {highContrast ? 'On' : 'Off'}
-                  </button>
-                  <button
-                    onClick={clearChat}
-                    className={`px-3 py-1 rounded-md transition-colors ${
-                      highContrast
-                        ? darkMode ? 'bg-red-900 text-white' : 'bg-red-700 text-white'
-                        : darkMode ? 'bg-red-800 text-white' : 'bg-red-600 text-white'
-                    }`}
-                    aria-label="Clear chat history"
-                  >
-                    Clear Chat
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="mt-4 text-sm">
-              <p>This chat interface follows WCAG 2.1 AA accessibility guidelines.</p>
-              <p>Use keyboard navigation (Tab key) to move between elements.</p>
-            </div>
-          </div>
-        </div>
-      )}
-
+    <div className="flex flex-col h-full w-full">
       {/* Feedback Modal */}
       {showFeedbackModal && (
         <div
-          className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ${
-            highContrast ? 'border-2 border-white' : ''
-          }`}
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
           role="dialog"
           aria-labelledby="feedback-modal-title"
           aria-modal="true"
         >
-          <div
-            className={`p-6 rounded-lg max-w-md w-full ${
-              highContrast
-                ? darkMode ? 'bg-gray-800 text-white border-2 border-white' : 'bg-white text-black border-2 border-black'
-                : darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'
-            }`}
-          >
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
             <div className="flex justify-between items-center mb-4">
               <h2 id="feedback-modal-title" className="text-lg font-semibold">Provide Feedback</h2>
               <button
@@ -610,11 +383,7 @@ const ChatbotUI = () => {
                   setFeedbackComments('');
                 }}
                 aria-label="Close feedback modal"
-                className={`p-1 rounded-full ${
-                  highContrast
-                    ? darkMode ? 'bg-yellow-600 text-white hover:bg-yellow-500' : 'bg-blue-700 text-white hover:bg-blue-600'
-                    : darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'
-                }`}
+                className="p-1 rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
               >
                 <X size={16} />
               </button>
@@ -630,15 +399,7 @@ const ChatbotUI = () => {
                 onChange={(e) => setFeedbackComments(e.target.value)}
                 placeholder="Why was this response not helpful?"
                 rows="4"
-                className={`w-full resize-none rounded-md px-4 py-2 outline-none focus:ring-2 ${
-                  highContrast
-                    ? darkMode
-                      ? 'bg-black text-white border-2 border-white focus:ring-yellow-400'
-                      : 'bg-white text-black border-2 border-black focus:ring-blue-600'
-                    : darkMode
-                      ? 'bg-gray-700 text-white placeholder-gray-400 focus:ring-blue-500/70 border-gray-600'
-                      : 'bg-white text-gray-900 placeholder-gray-500 focus:ring-blue-500/50 border border-gray-300'
-                }`}
+                className="w-full resize-none rounded-md px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500/50 border border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
               />
               <div className="mt-4 flex justify-end gap-2">
                 <button
@@ -647,21 +408,13 @@ const ChatbotUI = () => {
                     setShowFeedbackModal(false);
                     setFeedbackComments('');
                   }}
-                  className={`px-4 py-2 rounded-md ${
-                    highContrast
-                      ? darkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-gray-200 text-black hover:bg-gray-300'
-                      : darkMode ? 'bg-gray-600 text-white hover:bg-gray-500' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
+                  className="px-4 py-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className={`px-4 py-2 rounded-md ${
-                    highContrast
-                      ? darkMode ? 'bg-yellow-600 text-white hover:bg-yellow-500' : 'bg-blue-700 text-white hover:bg-blue-600'
-                      : darkMode ? 'bg-blue-600 text-white hover:bg-blue-500' : 'bg-blue-600 text-white hover:bg-blue-500'
-                  }`}
+                  className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-500 dark:bg-blue-600 dark:hover:bg-blue-500"
                 >
                   Submit
                 </button>
@@ -671,26 +424,15 @@ const ChatbotUI = () => {
         </div>
       )}
 
-
-      <main
-        id="main-content"
-        className={`flex-1 overflow-y-auto w-full transition-colors duration-300`}
-        tabIndex="-1"
-        aria-label="Chat messages"
-        role="log"
-      >
+      <main className="flex-1 overflow-y-auto w-full">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6">
           {messages.length === 0 ? (
             <div>
               <div
-                className={`flex flex-col items-center justify-center h-64 text-center p-6 rounded-xl ${
-                  highContrast
-                    ? darkMode ? 'bg-gray-800 text-white border-2 border-white' : 'bg-white text-black border-2 border-black'
-                    : darkMode ? 'bg-gray-800 text-gray-300' : 'bg-blue-50 text-gray-600'
-                }`}
+                className="flex flex-col items-center justify-center h-64 text-center p-6 rounded-xl bg-blue-50 text-gray-600 dark:bg-gray-800 dark:text-gray-300"
                 tabIndex="0"
               >
-                <Bot size={48} className={highContrast ? 'text-white' : darkMode ? 'text-gray-500' : 'text-blue-400'} aria-hidden="true" />
+                <Bot size={48} className="text-blue-400 dark:text-gray-500" aria-hidden="true" />
                 <p className="text-lg font-medium">How can I help you</p>
                 <p className="mt-2">Send a message to start chatting!</p>
               </div>
@@ -704,18 +446,14 @@ const ChatbotUI = () => {
                     <div
                       className={`flex-shrink-0 mt-1 p-2 rounded-full ${
                         message.isUser
-                          ? highContrast
-                            ? darkMode ? 'bg-yellow-600 text-white' : 'bg-blue-800 text-white'
-                            : darkMode ? 'bg-blue-700' : 'bg-blue-100'
-                          : highContrast
-                            ? darkMode ? 'bg-gray-700 text-white' : 'bg-gray-800 text-white'
-                            : darkMode ? 'bg-gray-700' : 'bg-gray-100'
+                          ? 'bg-blue-100 dark:bg-blue-700'
+                          : 'bg-gray-100 dark:bg-gray-700'
                       }`}
                     >
                       {message.isUser ? (
-                        <User size={16} className={highContrast ? 'text-white' : darkMode ? 'text-blue-300' : 'text-blue-700'} aria-hidden="true" />
+                        <User size={16} className="text-blue-700 dark:text-blue-300" aria-hidden="true" />
                       ) : (
-                        <Bot size={16} className={highContrast ? 'text-white' : darkMode ? 'text-gray-300' : 'text-gray-700'} aria-hidden="true" />
+                        <Bot size={16} className="text-gray-700 dark:text-gray-300" aria-hidden="true" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -728,7 +466,11 @@ const ChatbotUI = () => {
                         </span>
                       </div>
                       <div
-                        className={`rounded-lg p-3 leading-relaxed ${getMessageClasses(message.isUser)}`}
+                        className={`rounded-lg p-3 leading-relaxed ${
+                          message.isUser
+                            ? 'bg-blue-600 text-white dark:bg-blue-800'
+                            : 'bg-white text-gray-800 border border-gray-200 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700'
+                        }`}
                         aria-labelledby={`sender-${message.id}`}
                       >
                         {message.content ? (
@@ -750,12 +492,8 @@ const ChatbotUI = () => {
                             disabled={message.feedback !== null}
                             className={`p-2 rounded-full transition-colors ${
                               message.feedback === 'positive'
-                                ? highContrast
-                                  ? darkMode ? 'bg-yellow-600 text-white' : 'bg-blue-700 text-white'
-                                  : darkMode ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'
-                                : highContrast
-                                  ? darkMode ? 'bg-gray-700 text-white border border-white' : 'bg-white text-black border border-black'
-                                  : darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-700'
+                                ? 'bg-blue-600 text-white dark:bg-blue-600'
+                                : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200'
                             }`}
                             aria-label="Thumbs up"
                             aria-pressed={message.feedback === 'positive'}
@@ -767,12 +505,8 @@ const ChatbotUI = () => {
                             disabled={message.feedback !== null}
                             className={`p-2 rounded-full transition-colors ${
                               message.feedback === 'negative'
-                                ? highContrast
-                                  ? darkMode ? 'bg-yellow-600 text-white' : 'bg-blue-700 text-white'
-                                  : darkMode ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'
-                                : highContrast
-                                  ? darkMode ? 'bg-gray-700 text-white border border-white' : 'bg-white text-black border border-black'
-                                  : darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-700'
+                                ? 'bg-blue-600 text-white dark:bg-blue-600'
+                                : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200'
                             }`}
                             aria-label="Thumbs down"
                             aria-pressed={message.feedback === 'negative'}
@@ -783,9 +517,7 @@ const ChatbotUI = () => {
                       )}
                       {message.sources && message.sources.length > 0 && (
                         <div
-                          className={`mt-3 pt-2 ${
-                            highContrast ? (darkMode ? 'border-t-2 border-white' : 'border-t-2 border-black') : darkMode ? 'border-t border-gray-700' : 'border-t border-gray-200'
-                          }`}
+                          className="mt-3 pt-2 border-t border-gray-200 dark:border-gray-700"
                           aria-label="Sources used for this response"
                         >
                           <p className="font-semibold mb-1">Sources:</p>
@@ -797,11 +529,7 @@ const ChatbotUI = () => {
                                   href={source}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className={`hover:underline focus:underline overflow-hidden text-ellipsis ${
-                                    highContrast
-                                      ? darkMode ? 'text-yellow-400' : 'text-blue-800'
-                                      : darkMode ? 'text-blue-400' : 'text-blue-600'
-                                  }`}
+                                  className="hover:underline focus:underline overflow-hidden text-ellipsis text-blue-600 dark:text-blue-400"
                                 >
                                   {source}
                                 </a>
@@ -818,11 +546,7 @@ const ChatbotUI = () => {
           )}
           {error && (
             <div
-              className={`flex items-center gap-2 p-3 rounded-lg my-4 mx-auto max-w-3xl ${
-                highContrast
-                  ? darkMode ? 'bg-red-900 text-white border-2 border-white' : 'bg-red-700 text-white border-2 border-black'
-                  : darkMode ? 'bg-red-900/50 text-red-200' : 'bg-red-50 text-red-700'
-              }`}
+              className="flex items-center gap-2 p-3 rounded-lg my-4 mx-auto max-w-3xl bg-red-50 text-red-700 dark:bg-red-900/50 dark:text-red-200"
               role="alert"
               tabIndex="0"
             >
@@ -836,9 +560,7 @@ const ChatbotUI = () => {
 
       <form
         onSubmit={sendMessage}
-        className={`border-t p-4 sm:p-6 transition-colors duration-300 w-full ${
-          highContrast ? (darkMode ? 'border-white bg-gray-900' : 'border-black bg-white') : darkMode ? 'border-gray-800 bg-gray-800' : 'border-gray-200 bg-gray-50'
-        }`}
+        className="border-t p-4 sm:p-6 transition-colors duration-300 w-full border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-800"
       >
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-3">
@@ -857,15 +579,7 @@ const ChatbotUI = () => {
                 disabled={isLoading}
                 aria-label="Type your message"
                 aria-describedby="input-help"
-                className={`w-full resize-none rounded-2xl px-4 py-3 outline-none focus:ring-2 ${
-                  highContrast
-                    ? darkMode
-                      ? 'bg-black text-white border-2 border-white focus:ring-yellow-400'
-                      : 'bg-white text-black border-2 border-black focus:ring-blue-600'
-                    : darkMode
-                      ? 'bg-gray-700 text-white placeholder-gray-400 focus:ring-blue-500/70 border-gray-600'
-                      : 'bg-white text-gray-900 placeholder-gray-500 focus:ring-blue-500/50 border border-gray-300'
-                } transition-all duration-200`}
+                className="w-full resize-none rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 border border-gray-300 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:border-gray-600 transition-all duration-200"
               />
               <div id="input-help" className="sr-only">
                 Press Enter to send, Shift+Enter for a new line
@@ -875,17 +589,9 @@ const ChatbotUI = () => {
               type="submit"
               className={`flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full 
                 ${isLoading 
-                  ? highContrast
-                    ? darkMode ? 'bg-gray-700 text-gray-400 border border-white' : 'bg-gray-300 text-gray-500 border border-black'
-                    : darkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-300 text-gray-500' 
-                  : highContrast
-                    ? darkMode ? 'bg-yellow-600 text-white border border-white hover:bg-yellow-500' : 'bg-blue-700 text-white border border-black hover:bg-blue-600'
-                    : darkMode ? 'bg-blue-600 text-white hover:bg-blue-500' : 'bg-blue-600 text-white hover:bg-blue-500'
-                } focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                  highContrast
-                    ? darkMode ? 'focus:ring-yellow-400' : 'focus:ring-blue-600'
-                    : darkMode ? 'focus:ring-blue-500' : 'focus:ring-blue-600'
-                }
+                  ? 'bg-gray-300 text-gray-500 dark:bg-gray-700 dark:text-gray-400' 
+                  : 'bg-blue-600 text-white hover:bg-blue-500 dark:bg-blue-600 dark:hover:bg-blue-500'
+                } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
                 transition-all duration-200 transform ${!isLoading && 'hover:scale-105'}`}
               disabled={isLoading}
               aria-label={isLoading ? 'Sending message...' : 'Send message'}
@@ -896,9 +602,7 @@ const ChatbotUI = () => {
           </div>
           <div className="mt-2">
             <div
-              className={`flex items-center gap-1.5 ${
-                highContrast ? (darkMode ? 'text-gray-300' : 'text-gray-700') : darkMode ? 'text-gray-400' : 'text-gray-500'
-              }`}
+              className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400"
               aria-live="polite"
             >
               {isLoading ? (
@@ -914,11 +618,7 @@ const ChatbotUI = () => {
               ) : null}
             </div>
           </div>
-          <div
-            className={`mt-2 text-xs ${
-              highContrast ? (darkMode ? 'text-gray-300' : 'text-gray-700') : darkMode ? 'text-gray-500' : 'text-gray-500'
-            }`}
-          >
+          <div className="mt-2 text-xs text-gray-500 dark:text-gray-500">
             Press Enter to send • Shift+Enter for new line • Tab to navigate
           </div>
         </div>

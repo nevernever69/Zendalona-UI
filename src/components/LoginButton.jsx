@@ -2,7 +2,6 @@ import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { auth, googleProvider } from '../firebase';
 import { signInWithPopup, signOut } from 'firebase/auth';
-import { Button } from './Button'; // We'll create this component
 
 const LoginButton = () => {
   const { currentUser, isAdmin } = useAuth();
