@@ -1,11 +1,20 @@
-
 import React, { useState, useEffect } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Settings, Shield, FileText, Database, UploadCloud, Cpu, MessageSquare, Bell } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const AdminLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { currentUser, isAdmin, loading } = useAuth();
   const [feedbackCount, setFeedbackCount] = useState(0);
+
+  useEffect(() => {
+    // Redirect if not authenticated or not admin
+    if (!loading && (!currentUser || !isAdmin)) {
+      navigate('/');
+    }
+  }, [currentUser, isAdmin, loading, navigate]);
 
   const fetchFeedbackCount = async () => {
     try {
@@ -19,10 +28,12 @@ const AdminLayout = () => {
   };
 
   useEffect(() => {
-    fetchFeedbackCount();
-    const interval = setInterval(fetchFeedbackCount, 30000); // Refresh every 30 seconds
-    return () => clearInterval(interval);
-  }, []);
+    if (currentUser && isAdmin) {
+      fetchFeedbackCount();
+      const interval = setInterval(fetchFeedbackCount, 30000); // Refresh every 30 seconds
+      return () => clearInterval(interval);
+    }
+  }, [currentUser, isAdmin]);
 
   const navItems = [
     { to: '/admin/system', icon: Cpu, label: 'System' },
@@ -33,6 +44,14 @@ const AdminLayout = () => {
     { to: '/admin/temp-cache', icon: Settings, label: 'Temp Cache' },
     { to: '/admin/feedback', icon: MessageSquare, label: 'Feedback', count: feedbackCount },
   ];
+
+  if (loading) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  }
+
+  if (!currentUser || !isAdmin) {
+    return <div className="flex justify-center items-center h-screen">Access denied. Admin access required.</div>;
+  }
 
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">

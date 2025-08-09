@@ -6,8 +6,11 @@ import { ArrowUp, Loader, AlertCircle, Bot, User, Moon, Sun, ExternalLink, Info,
 import { v4 as uuidv4 } from 'uuid';
 import SuggestedQuestions from './components/SuggestedQuestions';
 import './components/SuggestedQuestions.css';
+import { useAuth } from './contexts/AuthContext';
+import LoginButton from './components/LoginButton';
 
 const ChatbotUI = () => {
+  const { currentUser } = useAuth();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -134,6 +137,12 @@ const ChatbotUI = () => {
     const message = messages.find(msg => msg.id === messageId);
     if (!message || message.isUser) return;
 
+    // Check if user is logged in
+    if (!currentUser) {
+      alert('Please login to submit feedback');
+      return;
+    }
+
     try {
       const feedbackData = {
         session_id: sessionId,
@@ -141,6 +150,9 @@ const ChatbotUI = () => {
         response: message.content,
         feedback: feedbackType,
         additional_comments: comments,
+        user_id: currentUser.uid,
+        user_email: currentUser.email,
+        user_name: currentUser.displayName
       };
 
       const response = await fetch('http://127.0.0.1:8000/chat/feedback', {
@@ -199,13 +211,14 @@ const ChatbotUI = () => {
       // Fix cases where bold markers are separated incorrectly
       .replace(/\*\s*\*([^*:]+):\*/g, '* **$1:**')
       // Clean up spacing around colons in list items
-      .replace(/(\*\s*\*\*[^:]+)\s*:\s*\*+/g, '$1:**')
+      // Clean up spacing around colons in list items
+      .replace(/(\*\s*\*\*[^:]+):\*\*\s*/g, '$1 ')
       // Remove trailing asterisks at end of lines
       .replace(/\s+\*+\s*$/gm, '')
       // Fix cases where asterisks appear mid-sentence incorrectly
       .replace(/([a-zA-Z])\*+([a-zA-Z])/g, '$1$2')
       // Ensure proper spacing after list item bold text
-      .replace(/(\*\s*\*\*[^*:]+:\*\*)\s*/g, '$1 ')
+      .replace(/(\*\s*\*\*[^:]+:\*\*)\s*/g, '$1 ')
       // Clean up multiple consecutive spaces
       .replace(/\s{2,}/g, ' ')
       // Clean up multiple newlines (keep max 2 for paragraph breaks)
@@ -327,6 +340,13 @@ const ChatbotUI = () => {
                   document.getElementById('announcement').textContent = '';
                 }, 2000);
               }
+            } else if (eventType === 'error') {
+              setError(data);
+              document.getElementById('announcement').textContent = `Error: ${data}`;
+              setTimeout(() => {
+                document.getElementById('announcement').textContent = '';
+              }, 2000);
+              break;
             } else if (eventType === 'done') {
               document.getElementById('announcement').textContent = 'Response completed';
               setTimeout(() => {
@@ -450,6 +470,7 @@ const ChatbotUI = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <LoginButton />
             <button
               onClick={toggleAccessibilityMenu}
               className={`p-2 rounded-full transition-colors ${
@@ -722,7 +743,7 @@ const ChatbotUI = () => {
                           )
                         )}
                       </div>
-                      {!message.isUser && message.feedback_enabled && message.content && (
+                      {!message.isUser && message.feedback_enabled && message.content && currentUser && (
                         <div className="mt-2 flex gap-2">
                           <button
                             onClick={() => handleFeedbackClick(message.id, 'positive')}

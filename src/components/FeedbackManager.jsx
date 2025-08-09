@@ -142,6 +142,18 @@ const FeedbackManager = () => {
           <label className="block text-sm font-medium">Feedback</label>
           <p className="mt-1 text-sm">{selectedEntry.feedback}</p>
         </div>
+        {selectedEntry.user_name && (
+          <div>
+            <label className="block text-sm font-medium">User Name</label>
+            <p className="mt-1 text-sm">{selectedEntry.user_name}</p>
+          </div>
+        )}
+        {selectedEntry.user_email && (
+          <div>
+            <label className="block text-sm font-medium">User Email</label>
+            <p className="mt-1 text-sm">{selectedEntry.user_email}</p>
+          </div>
+        )}
         <div className="flex justify-end space-x-4">
           <button
             onClick={() => setEditMode(selectedEntry._id)}
@@ -188,6 +200,7 @@ const FeedbackManager = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Question</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Answer</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Feedback</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">User</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
@@ -201,6 +214,9 @@ const FeedbackManager = () => {
                   <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">{entry.question}</td>
                   <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 truncate max-w-md">{entry.answer}</td>
                   <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">{entry.feedback}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">
+                    {entry.user_name || entry.user_email || 'Anonymous'}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <button
                       onClick={(e) => {
