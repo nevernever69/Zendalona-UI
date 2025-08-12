@@ -18,7 +18,7 @@ const FeedbackManager = () => {
   const fetchFeedbackEntries = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('http://127.0.0.1:8000/feedback/');
+      const response = await fetch('https://ai-agent-zendalona-1.onrender.com/feedback/');
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       const data = await response.json();
       setFeedbackEntries(data);
@@ -37,7 +37,7 @@ const FeedbackManager = () => {
     if (!window.confirm(`Are you sure you want to delete feedback for "${question}"?`)) return;
     try {
       setIsLoading(true);
-      const response = await fetch(`http://127.0.0.1:8000/feedback/${itemId}`, {
+      const response = await fetch(`https://ai-agent-zendalona-1.onrender.com/feedback/${itemId}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -63,7 +63,7 @@ const FeedbackManager = () => {
     if (!window.confirm(`Are you sure you want to update and move feedback for "${question}" to the permanent cache?`)) return;
     try {
       setIsLoading(true);
-      const response = await fetch(`http://127.0.0.1:8000/feedback/move-to-cache/${itemId}`,
+      const response = await fetch(`https://ai-agent-zendalona-1.onrender.com/feedback/move-to-cache/${itemId}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

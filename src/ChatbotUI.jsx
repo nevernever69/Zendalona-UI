@@ -101,7 +101,7 @@ const ChatbotUI = () => {
         user_name: currentUser.displayName
       };
 
-      const response = await fetch('http://127.0.0.1:8000/chat/feedback', {
+      const response = await fetch('https://ai-agent-zendalona-1.onrender.com/chat/feedback', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -149,35 +149,23 @@ const ChatbotUI = () => {
 
   // Universal markdown formatter to fix common formatting issues
   const cleanMarkdownFormatting = (content) => {
+    // Convert plain text list format to proper markdown
     let cleanedContent = content
-      // Fix malformed bold syntax - remove extra asterisks
-      .replace(/\*{3,}/g, '**')
-      // Fix list items with malformed bold formatting
-      .replace(/\*\s*\*{2,}([^*:]+):\*{2,}/g, '* **$1:**')
-      // Fix cases where bold markers are separated incorrectly
-      .replace(/\*\s*\*([^*:]+):\*/g, '* **$1:**')
-      // Clean up spacing around colons in list items
-      .replace(/(\*\s*\*\*[^:]+):\*\*\s*/g, '$1 ')
-      // Remove trailing asterisks at end of lines
-      .replace(/\s+\*+\s*$/gm, '')
-      // Fix cases where asterisks appear mid-sentence incorrectly
-      .replace(/([a-zA-Z])\*+([a-zA-Z])/g, '$1$2')
-      // Ensure proper spacing after list item bold text
-      .replace(/(\*\s*\*\*[^:]+:\*\*)\s*/g, '$1 ')
-      // Clean up multiple consecutive spaces
-      .replace(/\s{2,}/g, ' ')
-      // Clean up multiple newlines (keep max 2 for paragraph breaks)
+      // Fix the specific "Z endalona" issue
+      .replace(/Z\s*endalona/gi, 'Zendalona')
+      .replace(/Z\s*Endalona/g, 'Zendalona')
+      // Fix missing spaces after asterisks
+      .replace(/\*(\w)/g, '* $1')
+      // Convert plain text format to markdown format
+      .replace(/^\s*\*\s*([A-Z\s\-0-9]+):\s*/gm, '* **$1**: ')
+      // Fix spacing issues
       .replace(/\n{3,}/g, '\n\n')
-      // Fix orphaned asterisks at start of lines
-      .replace(/^\*+\s*$/gm, '')
-      // Remove empty list items
-      .replace(/^\*\s*$/gm, '')
-      // Ensure list items start properly
-      .replace(/^\s*\*\s*\*\*/gm, '* **')
-      // Fix bold text that spans across line breaks incorrectly
-      .replace(/\*\*([^*\n]+)\n([^*\n]+)\*\*/g, '**$1 $2**')
-      // Clean up any remaining malformed bold syntax
-      .replace(/\*\*\s*\*\*/g, '')
+      // Clean up any trailing spaces at end of lines
+      .replace(/\s+$/gm, '')
+      // Fix common spacing issues in list items
+      .replace(/^\*(\w)/gm, '* $1')
+      // Ensure proper spacing in product names
+      .replace(/(\w)-\s+(\w)/g, '$1-$2')
       .trim();
 
     return cleanedContent;
@@ -200,7 +188,7 @@ const ChatbotUI = () => {
     setError(null);
   
     try {
-      const response = await fetch('http://127.0.0.1:8000/chat/stream', {
+      const response = await fetch('https://ai-agent-zendalona-1.onrender.com/chat/stream', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -327,42 +315,59 @@ const ChatbotUI = () => {
     }
   };
 
-  const renderMessageContent = (message) => (
-    <ReactMarkdown
-      children={cleanMarkdownFormatting(message.content)}
-      remarkPlugins={[remarkGfm]}
-      rehypePlugins={[rehypeRaw]}
-      components={{
-        h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mb-4 mt-4" {...props} />,
-        h2: ({ node, ...props }) => <h2 className="text-xl font-semibold mb-3 mt-3" {...props} />,
-        h3: ({ node, ...props }) => <h3 className="text-lg font-semibold mb-2 mt-2" {...props} />,
-        h4: ({ node, ...props }) => <h4 className="text-base font-semibold mb-2 mt-2" {...props} />,
-        h5: ({ node, ...props }) => <h5 className="text-sm font-semibold mb-1 mt-1" {...props} />,
-        h6: ({ node, ...props }) => <h6 className="text-xs font-semibold mb-1 mt-1" {...props} />,
-        p: ({ node, ...props }) => <p className="mb-4" {...props} />,
-        strong: ({ node, ...props }) => <strong className="font-bold" {...props} />,
-        em: ({ node, ...props }) => <em className="italic" {...props} />,
-        ul: ({ node, ...props }) => <ul className="list-disc list-inside mb-4 pl-4" {...props} />,
-        ol: ({ node, ...props }) => <ol className="list-decimal list-inside mb-4 pl-4" {...props} />,
-        li: ({ node, ...props }) => <li className="mb-1" {...props} />,
-        blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-gray-500 pl-4 italic my-4" {...props} />,
-        pre: ({ node, ...props }) => <pre className="bg-gray-800 text-white p-4 rounded-md my-4 overflow-x-auto" {...props} />,
-        code: ({ node, inline, className, children, ...props }) => {
-          const match = /language-(\w+)/.exec(className || '');
-          return !inline ? (
-              <code className={`language-${match ? match[1] : 'plaintext'}`} {...props}>
+  const renderMessageContent = (message) => {
+    // Additional preprocessing to fix specific formatting issues
+    let content = message.content;
+    
+    // Fix the "Z endalona" issue before rendering
+    content = content.replace(/Z\s*endalona/gi, 'Zendalona');
+    
+    // Fix missing spaces in list items
+    content = content.replace(/\*(\w)/g, '* $1');
+    
+    // Ensure proper line breaks between list items
+    content = content.replace(/\*\s([A-Z])/g, '\n* $1');
+    
+    // Fix spacing in hyphenated product names
+    content = content.replace(/(\w)-\s+(\w)/g, '$1-$2');
+    
+    return (
+      <ReactMarkdown
+        children={cleanMarkdownFormatting(content)}
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeRaw]}
+        components={{
+          h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mb-4 mt-4" {...props} />,
+          h2: ({ node, ...props }) => <h2 className="text-xl font-semibold mb-3 mt-3" {...props} />,
+          h3: ({ node, ...props }) => <h3 className="text-lg font-semibold mb-2 mt-2" {...props} />,
+          h4: ({ node, ...props }) => <h4 className="text-base font-semibold mb-2 mt-2" {...props} />,
+          h5: ({ node, ...props }) => <h5 className="text-sm font-semibold mb-1 mt-1" {...props} />,
+          h6: ({ node, ...props }) => <h6 className="text-xs font-semibold mb-1 mt-1" {...props} />,
+          p: ({ node, ...props }) => <p className="mb-4 leading-relaxed" {...props} />,
+          strong: ({ node, ...props }) => <strong className="font-bold" {...props} />,
+          em: ({ node, ...props }) => <em className="italic" {...props} />,
+          ul: ({ node, ...props }) => <ul className="list-disc list-inside mb-4 pl-4 space-y-2" {...props} />,
+          ol: ({ node, ...props }) => <ol className="list-decimal list-inside mb-4 pl-4 space-y-2" {...props} />,
+          li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+          blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-gray-500 pl-4 italic my-4" {...props} />,
+          pre: ({ node, ...props }) => <pre className="bg-gray-800 text-white p-4 rounded-md my-4 overflow-x-auto" {...props} />,
+          code: ({ node, inline, className, children, ...props }) => {
+            const match = /language-(\w+)/.exec(className || '');
+            return !inline ? (
+                <code className={`language-${match ? match[1] : 'plaintext'}`} {...props}>
+                  {children}
+                </code>
+            ) : (
+              <code className="bg-gray-700 text-white px-1 rounded-md" {...props}>
                 {children}
               </code>
-          ) : (
-            <code className="bg-gray-700 text-white px-1 rounded-md" {...props}>
-              {children}
-            </code>
-          );
-        },
-        a: ({ node, ...props }) => <a className="text-blue-500 underline" target="_blank" rel="noopener noreferrer" {...props} />,
-      }}
-    />
-  );
+            );
+          },
+          a: ({ node, ...props }) => <a className="text-blue-500 underline" target="_blank" rel="noopener noreferrer" {...props} />,
+        }}
+      />
+    );
+  };
 
   return (
     <div className="flex flex-col h-full w-full">

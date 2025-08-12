@@ -16,7 +16,7 @@ const Crawl = () => {
     setError(null);
     setResponseMessage('');
     try {
-      const response = await fetch('http://127.0.0.1:8000/indexing/crawl', {
+      const response = await fetch('https://ai-agent-zendalona-1.onrender.com/indexing/crawl', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: crawlUrl, max_pages: maxPages, depth }),

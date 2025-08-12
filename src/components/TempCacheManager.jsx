@@ -18,7 +18,7 @@ const TempCacheManager = () => {
   const fetchTempCacheEntries = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('http://127.0.0.1:8000/temp-cache/');
+      const response = await fetch('https://ai-agent-zendalona-1.onrender.com/temp-cache/');
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       const data = await response.json();
       setTempCacheEntries(data);
@@ -37,7 +37,7 @@ const TempCacheManager = () => {
     if (!window.confirm(`Are you sure you want to delete "${question}"?`)) return;
     try {
       setIsLoading(true);
-      const response = await fetch(`http://127.0.0.1:8000/temp-cache/${itemId}`, {
+      const response = await fetch(`https://ai-agent-zendalona-1.onrender.com/temp-cache/${itemId}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -63,7 +63,7 @@ const TempCacheManager = () => {
     if (!window.confirm(`Are you sure you want to move "${question}" to the permanent cache?`)) return;
     try {
       setIsLoading(true);
-      const response = await fetch(`http://127.0.0.1:8000/temp-cache/move/${itemId}`, {
+      const response = await fetch(`https://ai-agent-zendalona-1.onrender.com/temp-cache/move/${itemId}`, {
         method: 'POST',
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -89,7 +89,7 @@ const TempCacheManager = () => {
     if (!window.confirm(`Are you sure you want to update "${question}"?`)) return;
     try {
       setIsLoading(true);
-      const response = await fetch(`http://127.0.0.1:8000/temp-cache/${itemId}`,
+      const response = await fetch(`https://ai-agent-zendalona-1.onrender.com/temp-cache/${itemId}`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -120,7 +120,7 @@ const TempCacheManager = () => {
     if (!window.confirm(`Are you sure you want to update and move "${question}" to the permanent cache?`)) return;
     try {
       setIsLoading(true);
-      const response = await fetch(`http://127.0.0.1:8000/temp-cache/update-and-move/${itemId}`, {
+      const response = await fetch(`https://ai-agent-zendalona-1.onrender.com/temp-cache/update-and-move/${itemId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: editedQuestion, answer: editedAnswer }),
@@ -227,6 +227,10 @@ const TempCacheManager = () => {
           <p className="mt-1 text-sm">{selectedEntry.answer}</p>
         </div>
         <div>
+          <label className="block text-sm font-medium">Source</label>
+          <p className="mt-1 text-sm">{selectedEntry.source}</p>
+        </div>
+        <div>
           <label className="block text-sm font-medium">Created At</label>
           <p className="mt-1 text-sm">{new Date(selectedEntry.createdAt).toLocaleString()}</p>
         </div>
@@ -288,6 +292,7 @@ const TempCacheManager = () => {
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Question</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Answer</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Source</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Expires In</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
               </tr>
@@ -301,6 +306,7 @@ const TempCacheManager = () => {
                 >
                   <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">{entry.question}</td>
                   <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 truncate max-w-md">{entry.answer}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{entry.source}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{calculateDaysLeft(entry.createdAt)}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <button

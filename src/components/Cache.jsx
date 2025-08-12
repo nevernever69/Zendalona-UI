@@ -20,7 +20,7 @@ const Cache = () => {
   const fetchCacheEntries = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('http://127.0.0.1:8000/indexing/cache');
+      const response = await fetch('https://ai-agent-zendalona-1.onrender.com/indexing/cache');
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       const data = await response.json();
       const entries = data.entries || data.questions || [];
@@ -47,7 +47,7 @@ const Cache = () => {
     setError(null);
     setResponseMessage('');
     try {
-      const response = await fetch('http://127.0.0.1:8000/cache/add', {
+      const response = await fetch('https://ai-agent-zendalona-1.onrender.com/cache/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -78,7 +78,7 @@ const Cache = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch(`http://127.0.0.1:8000/indexing/cache/${entryId}`, {
+      const response = await fetch(`https://ai-agent-zendalona-1.onrender.com/indexing/cache/${entryId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -98,7 +98,7 @@ const Cache = () => {
     if (!window.confirm('Are you sure you want to update this cache entry?')) return;
     try {
       setIsLoading(true);
-      const response = await fetch(`http://127.0.0.1:8000/cache/update/${entryId}`,
+      const response = await fetch(`https://ai-agent-zendalona-1.onrender.com/cache/update/${entryId}`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -129,7 +129,7 @@ const Cache = () => {
     try {
       const formData = new FormData();
       formData.append('file', csvFile);
-      const response = await fetch('http://127.0.0.1:8000/cache/import', {
+      const response = await fetch('https://ai-agent-zendalona-1.onrender.com/cache/import', {
         method: 'POST',
         body: formData,
       });
@@ -148,7 +148,7 @@ const Cache = () => {
 
   const handleExportCsv = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/cache/export');
+      const response = await fetch('https://ai-agent-zendalona-1.onrender.com/cache/export');
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
