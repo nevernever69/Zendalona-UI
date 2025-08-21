@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
       if (user) {
         // Example: Check if user email is in admin list
         // You can replace this with your own logic
-        const adminEmails = ['nevernever955@gmail.com']; // Add your admin emails here
+        const adminEmails = ['nevernever955@gmail.com', 'nfemina55@gmail.com', 'devikavrajesh24@gmail.com', 'muhammedmubees56@gmail.com', 'utharakrishnack@gmail.com', 'fayiznk26@gmail.com', 'sanitaambookkan@gmail.com', 'nayanagovind9758@gmail.com']; // Add your admin emails here
         setIsAdmin(adminEmails.includes(user.email));
       } else {
         setIsAdmin(false);
