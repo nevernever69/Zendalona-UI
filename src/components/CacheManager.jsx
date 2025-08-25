@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Edit, Trash2, Upload, Save, X, AlertCircle } from 'lucide-react';
+import { Edit, Trash2, Upload, Save, X, AlertCircle, XCircle } from 'lucide-react';
 
 const CacheManager = () => {
   const [cacheData, setCacheData] = useState([]);
@@ -12,6 +12,8 @@ const CacheManager = () => {
   const [showImportModal, setShowImportModal] = useState(false);
   const [importFile, setImportFile] = useState(null);
   const [expandedAnswers, setExpandedAnswers] = useState({});
+  const [isImporting, setIsImporting] = useState(false);
+  const abortControllerRef = useRef(null);
   const fileInputRef = useRef(null);
 
   const API_URL = '/api/indexing';
@@ -28,8 +30,15 @@ const CacheManager = () => {
         throw new Error(`Error: ${response.status}`);
       }
       const data = await response.json();
-      if (data && Array.isArray(data.entries)) {
-        setCacheData(data.entries);
+      if (data && Array.isArray(data.questions)) {
+        // The backend returns questions with 'id', 'question', and 'answer' fields
+        // We need to format them for our table
+        const formattedData = data.questions.map(q => ({
+          id: q.id,
+          question: q.question,
+          answer: q.answer
+        }));
+        setCacheData(formattedData);
       } else {
         setError('Received unexpected data format from the server.');
         setCacheData([]);
@@ -119,6 +128,11 @@ const CacheManager = () => {
       return;
     }
 
+    // Create AbortController for cancellation
+    abortControllerRef.current = new AbortController();
+    setIsImporting(true);
+    setError(null);
+
     const formData = new FormData();
     formData.append('file', importFile);
 
@@ -126,6 +140,7 @@ const CacheManager = () => {
       const response = await fetch(`${API_URL}/import`, {
         method: 'POST',
         body: formData,
+        signal: abortControllerRef.current.signal,
       });
 
       if (!response.ok) {
@@ -135,9 +150,23 @@ const CacheManager = () => {
       setShowImportModal(false);
       setImportFile(null);
       fetchCacheData(); // Refresh data after import
+      setError(null); // Clear any previous errors
     } catch (err) {
-      setError('Failed to import file. Please make sure it is a valid CSV file.');
-      console.error('Error importing file:', err);
+      if (err.name === 'AbortError') {
+        setError('Import cancelled by user.');
+      } else {
+        setError('Failed to import file. Please make sure it is a valid CSV file.');
+        console.error('Error importing file:', err);
+      }
+    } finally {
+      setIsImporting(false);
+      abortControllerRef.current = null;
+    }
+  };
+
+  const handleCancelImport = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
     }
   };
 
@@ -317,21 +346,45 @@ const CacheManager = () => {
                 accept=".csv"
                 onChange={handleFileChange}
                 className="w-full p-2 border rounded-md"
+                disabled={isImporting}
               />
+              {isImporting && (
+                <div className="mt-4 p-3 bg-blue-50 rounded-md flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-t-2 border-blue-600 rounded-full animate-spin"></div>
+                    <span>Importing file... This may take a moment.</span>
+                  </div>
+                </div>
+              )}
               <div className="mt-4 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowImportModal(false)}
                   className="px-4 py-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  disabled={isImporting}
                 >
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
-                >
-                  Import
-                </button>
+                {isImporting ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={handleCancelImport}
+                      className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 flex items-center gap-2"
+                    >
+                      <XCircle size={18} />
+                      Cancel Import
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="submit"
+                    className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-400"
+                    disabled={!importFile || isImporting}
+                  >
+                    Import
+                  </button>
+                )}
               </div>
             </form>
           </div>

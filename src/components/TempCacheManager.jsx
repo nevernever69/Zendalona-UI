@@ -29,6 +29,28 @@ const TempCacheManager = () => {
     }
   };
 
+  const handleClearAll = async () => {
+    if (!window.confirm('Are you sure you want to clear all temporary cache entries? This action cannot be undone.')) return;
+    try {
+      setIsLoading(true);
+      const response = await fetch('https://ai-agent-zendalona-1.onrender.com/temp-cache/clear', {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      const data = await response.json();
+      setResponseMessage(data.message || 'Successfully cleared all temporary cache entries');
+      // Clear the response message after 3 seconds
+      setTimeout(() => {
+        setResponseMessage('');
+      }, 3000);
+      fetchTempCacheEntries();
+      setIsLoading(false);
+    } catch (err) {
+      setError(`Failed to clear temporary cache: ${err.message}`);
+      setIsLoading(false);
+    }
+  };
+
   const handleDelete = async (itemId) => {
     // Get the entry for better messaging
     const entry = tempCacheEntries.find(e => e._id === itemId);
@@ -258,13 +280,28 @@ const TempCacheManager = () => {
     <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold text-gray-800 dark:text-white">Temporary Cache</h2>
-        <button
-          onClick={fetchTempCacheEntries}
-          className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center"
-          aria-label="Refresh temporary cache entries"
-        >
-          <RefreshCw size={20} />
-        </button>
+        <div className="flex space-x-2">
+          <button
+            onClick={handleClearAll}
+            disabled={tempCacheEntries.length === 0 || isLoading}
+            className={`flex items-center px-3 py-1 rounded-md text-sm ${
+              tempCacheEntries.length === 0 || isLoading
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-600 dark:text-gray-400'
+                : 'bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800'
+            }`}
+            aria-label="Clear all temporary cache entries"
+          >
+            <Trash2 size={16} className="mr-1" />
+            Clear All
+          </button>
+          <button
+            onClick={fetchTempCacheEntries}
+            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center"
+            aria-label="Refresh temporary cache entries"
+          >
+            <RefreshCw size={20} />
+          </button>
+        </div>
       </div>
       <div className="mb-6 p-4 bg-blue-50 dark:bg-gray-700 rounded-lg flex items-center">
         <Info size={20} className="text-blue-500 dark:text-blue-300 mr-3" />
