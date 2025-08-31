@@ -12,7 +12,7 @@ const Collections = () => {
   const fetchCollections = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('https://ai-agent-zendalona-1.onrender.com/indexing/collections');
+      const response = await fetch('https://chatapi.zendalona.com/indexing/collections');
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       const data = await response.json();
       setCollections(data.collections);
@@ -26,7 +26,7 @@ const Collections = () => {
   const fetchDocuments = async (collectionName) => {
     try {
       setIsLoading(true);
-      const response = await fetch(`https://ai-agent-zendalona-1.onrender.com/indexing/collections/${collectionName}`);
+      const response = await fetch(`https://chatapi.zendalona.com/indexing/collections/${collectionName}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       const data = await response.json();
       if (data.documents) {
@@ -55,7 +55,7 @@ const Collections = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch(`https://ai-agent-zendalona-1.onrender.com/indexing/collections/${collectionName}`, {
+      const response = await fetch(`https://chatapi.zendalona.com/indexing/collections/${collectionName}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -79,7 +79,7 @@ const Collections = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch(`https://ai-agent-zendalona-1.onrender.com/indexing/collections/${collectionName}/${documentId}`, {
+      const response = await fetch(`https://chatapi.zendalona.com/indexing/collections/${collectionName}/${documentId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
       });

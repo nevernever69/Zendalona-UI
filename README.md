@@ -48,6 +48,38 @@ Build for production:
 npm run build
 ```
 
+## Deployment
+
+This application can be deployed using Docker. See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
+
+### Quick Deployment with Docker
+
+1. Build and start the application:
+   ```bash
+   docker-compose up -d
+   ```
+
+2. Access the application at `http://localhost:8080`
+
+### Using the Deployment Scripts
+
+Alternatively, you can use the provided shell scripts:
+
+1. To build and run the application:
+   ```bash
+   ./run-docker.sh
+   ```
+
+2. To stop and remove the application:
+   ```bash
+   ./stop-docker.sh
+   ```
+
+3. To view the application logs:
+   ```bash
+   ./logs-docker.sh
+   ```
+
 ## Authentication
 
 - Users can login with Google authentication

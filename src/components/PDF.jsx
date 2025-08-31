@@ -20,7 +20,7 @@ const PDF = () => {
     try {
       const formData = new FormData();
       formData.append('file', pdfFile);
-      const response = await fetch('https://ai-agent-zendalona-1.onrender.com/indexing/upload-pdf', {
+      const response = await fetch('https://chatapi.zendalona.com/indexing/upload-pdf', {
         method: 'POST',
         body: formData,
       });

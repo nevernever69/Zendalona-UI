@@ -15,7 +15,7 @@ const System = () => {
   const fetchSystemInfo = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('https://ai-agent-zendalona-1.onrender.com/system/info');
+      const response = await fetch('https://chatapi.zendalona.com/system/info');
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       const data = await response.json();
       setSystemInfo(data);
@@ -28,7 +28,7 @@ const System = () => {
 
   const fetchHealthStatus = async () => {
     try {
-      const response = await fetch('https://ai-agent-zendalona-1.onrender.com/system/health');
+      const response = await fetch('https://chatapi.zendalona.com/system/health');
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       const data = await response.json();
       setHealthStatus(data);

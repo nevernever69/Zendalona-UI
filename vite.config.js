@@ -8,7 +8,7 @@ export default defineConfig({
     host: true, // or '0.0.0.0'
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        target: 'https://chatapi.zendalona.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },

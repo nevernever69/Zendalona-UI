@@ -18,7 +18,7 @@ const TempCacheManager = () => {
   const fetchTempCacheEntries = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('https://ai-agent-zendalona-1.onrender.com/temp-cache/');
+      const response = await fetch('https://chatapi.zendalona.com/temp-cache/');
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       const data = await response.json();
       setTempCacheEntries(data);
@@ -33,7 +33,7 @@ const TempCacheManager = () => {
     if (!window.confirm('Are you sure you want to clear all temporary cache entries? This action cannot be undone.')) return;
     try {
       setIsLoading(true);
-      const response = await fetch('https://ai-agent-zendalona-1.onrender.com/temp-cache/clear', {
+      const response = await fetch('https://chatapi.zendalona.com/temp-cache/clear', {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -59,7 +59,7 @@ const TempCacheManager = () => {
     if (!window.confirm(`Are you sure you want to delete "${question}"?`)) return;
     try {
       setIsLoading(true);
-      const response = await fetch(`https://ai-agent-zendalona-1.onrender.com/temp-cache/${itemId}`, {
+      const response = await fetch(`https://chatapi.zendalona.com/temp-cache/${itemId}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -85,7 +85,7 @@ const TempCacheManager = () => {
     if (!window.confirm(`Are you sure you want to move "${question}" to the permanent cache?`)) return;
     try {
       setIsLoading(true);
-      const response = await fetch(`https://ai-agent-zendalona-1.onrender.com/temp-cache/move/${itemId}`, {
+      const response = await fetch(`https://chatapi.zendalona.com/temp-cache/move/${itemId}`, {
         method: 'POST',
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -111,7 +111,7 @@ const TempCacheManager = () => {
     if (!window.confirm(`Are you sure you want to update "${question}"?`)) return;
     try {
       setIsLoading(true);
-      const response = await fetch(`https://ai-agent-zendalona-1.onrender.com/temp-cache/${itemId}`,
+      const response = await fetch(`https://chatapi.zendalona.com/temp-cache/${itemId}`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -142,7 +142,7 @@ const TempCacheManager = () => {
     if (!window.confirm(`Are you sure you want to update and move "${question}" to the permanent cache?`)) return;
     try {
       setIsLoading(true);
-      const response = await fetch(`https://ai-agent-zendalona-1.onrender.com/temp-cache/update-and-move/${itemId}`, {
+      const response = await fetch(`https://chatapi.zendalona.com/temp-cache/update-and-move/${itemId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: editedQuestion, answer: editedAnswer }),

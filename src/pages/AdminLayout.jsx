@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Settings, Shield, FileText, Database, UploadCloud, Cpu, MessageSquare, Bell } from 'lucide-react';
+import { Home, Settings, Shield, FileText, Database, UploadCloud, Cpu, MessageSquare, Bell, Key } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 const AdminLayout = () => {
@@ -18,7 +18,7 @@ const AdminLayout = () => {
 
   const fetchFeedbackCount = async () => {
     try {
-      const response = await fetch('https://ai-agent-zendalona-1.onrender.com/feedback/');
+      const response = await fetch('https://chatapi.zendalona.com/feedback/');
       if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       const data = await response.json();
       setFeedbackCount(data.length);
@@ -43,6 +43,7 @@ const AdminLayout = () => {
     { to: '/admin/cache', icon: Shield, label: 'Cache' },
     { to: '/admin/temp-cache', icon: Settings, label: 'Temp Cache' },
     { to: '/admin/feedback', icon: MessageSquare, label: 'Feedback', count: feedbackCount },
+    { to: '/admin/api-keys', icon: Key, label: 'API Keys' },
   ];
 
   if (loading) {

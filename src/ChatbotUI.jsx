@@ -101,7 +101,7 @@ const ChatbotUI = () => {
         user_name: currentUser.displayName
       };
 
-      const response = await fetch('https://ai-agent-zendalona-1.onrender.com/chat/feedback', {
+      const response = await fetch('https://chatapi.zendalona.com/chat/feedback', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -188,7 +188,7 @@ const ChatbotUI = () => {
     setError(null);
   
     try {
-      const response = await fetch('https://ai-agent-zendalona-1.onrender.com/chat/stream', {
+      const response = await fetch('https://chatapi.zendalona.com/chat/stream', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
