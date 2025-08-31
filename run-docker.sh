@@ -73,7 +73,7 @@ print_status "Starting container..."
 docker run -d \
   --name zendalona-chatbot-ui \
   --env-file .env \
-  -p 8080:80 \
+  -p 7000:80 \
   --restart unless-stopped \
   "$IMAGE_NAME"
 
